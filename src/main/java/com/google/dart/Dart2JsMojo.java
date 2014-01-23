@@ -125,6 +125,21 @@ public class Dart2JsMojo
     private final static String ARGUMENT_DIAGNOSTIC_COLORS = "--enable-diagnostic-colors";
 
     /**
+     * Name of the global variable used by dart2js compiler in the generated code.
+     * The name must match the regular expression "\$[a-z]*".
+     *
+     * @since 2.1.2
+     */
+    private final static String ARGUMENT_GLOBAL_JS_NAME = "--global-js-name=";
+
+    /**
+     * The default category is Client, which tells dart2js to expect a web app.
+     * 
+     * @since 3.0.8
+     */
+    private final static String ARGUMENT_CATEGORIES = "--categories=";
+    
+    /**
      * Skip the execution of dart2js.
      *
      * @since 1.1
@@ -255,6 +270,25 @@ public class Dart2JsMojo
     private boolean skipPub;
 
     /**
+     * Name of the global variable used by dart2js compiler in the generated code.
+     * The name must match the regular expression "\$[a-z]*".
+     * Only available in dart2js < 1.1.
+     *
+     * @since 2.1.2
+     */
+    @Parameter(property = "dart.global.js.name")
+    private String globalJsName;
+
+    /**
+     * Use with --analyze-only to analyze a command-line app. 
+     * The default category is Client, which tells dart2js to expect a web app.
+     *
+     * @since 3.0.8
+     */
+    @Parameter(property = "dart.categories")
+    private String categories;
+    
+    /**
      * The number of threads used to span dart2js instances.
      *
      * @since 3.0.0
@@ -370,7 +404,7 @@ public class Dart2JsMojo
                                 }
                                 if (returnValue != 0) {
                                     throw new MojoExecutionException(null, "Dart2Js returned error code " + returnValue,
-                                    		stringBuilder.toString());
+                                        stringBuilder.toString());
                                 }
 
                                 System.out.println();
@@ -482,6 +516,10 @@ public class Dart2JsMojo
 
         if (isPackagePath()) {
             cl.createArg().setValue(ARGUMENT_PACKAGE_PATH + packagePath.getAbsolutePath());
+        }
+
+        if (isGlobalJs()) {
+            cl.createArg().setValue(ARGUMENT_GLOBAL_JS_NAME + globalJsName);
         }
 
         if (getLog().isDebugEnabled()) {
@@ -657,7 +695,7 @@ public class Dart2JsMojo
     }
 
     protected boolean isSuppressHints() {
-      return suppressHints;
+        return suppressHints;
     }
 
     protected boolean isDiagnosticColors() {
@@ -671,4 +709,13 @@ public class Dart2JsMojo
     protected boolean isPackagePath() {
         return packagePath != null;
     }
+
+    protected boolean isGlobalJs() {
+        return globalJsName != null;
+    }
+    
+    protected boolean isCategories() {
+        return categories != null;
+    }
+    
 }
